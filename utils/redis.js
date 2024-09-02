@@ -1,24 +1,20 @@
-import { createClient } from 'redis';
+const { createClient } = require('redis');
 
 class RedisClient {
   constructor() {
     this.client = createClient();
 
-    // Handle Redis client errors
     this.client.on('error', (err) => {
       console.error(`Redis Client Error: ${err}`);
     });
 
-    // Connect to Redis
     this.client.connect();
   }
 
-  // Check if Redis is alive
   isAlive() {
     return this.client.isOpen;
   }
 
-  // Get the value of a key
   async get(key) {
     try {
       const value = await this.client.get(key);
@@ -29,7 +25,6 @@ class RedisClient {
     }
   }
 
-  // Set a key with an expiration time
   async set(key, value, duration) {
     try {
       await this.client.setEx(key, duration, value);
@@ -38,7 +33,6 @@ class RedisClient {
     }
   }
 
-  // Delete a key from Redis
   async del(key) {
     try {
       await this.client.del(key);
@@ -48,6 +42,5 @@ class RedisClient {
   }
 }
 
-// Create and export an instance of RedisClient
 const redisClient = new RedisClient();
-export default redisClient;
+module.exports = redisClient;
