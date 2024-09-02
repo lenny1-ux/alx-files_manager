@@ -9,17 +9,8 @@ class RedisClient {
       console.error(`Redis Client Error: ${err}`);
     });
 
-    // Connect to Redis and wait for the connection to be established
-    this.connectClient();
-  }
-
-  async connectClient() {
-    try {
-      await this.client.connect();
-      console.log("Connected to Redis successfully!");
-    } catch (err) {
-      console.error("Redis connection failed:", err);
-    }
+    // Connect to Redis
+    this.client.connect();
   }
 
   // Check if Redis is alive
