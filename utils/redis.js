@@ -9,13 +9,16 @@ class RedisClient {
    * Creates a new RedisClient instance.
    */
   constructor() {
-    this.client = createClient();
+    this.client = createClient(); // Add options if needed like { host, port }
+
     this.isClientConnected = true;
     this.client.on('error', (err) => {
       console.error('Redis client failed to connect:', err.message || err.toString());
       this.isClientConnected = false;
     });
+
     this.client.on('connect', () => {
+      console.log('Redis client connected successfully.');
       this.isClientConnected = true;
     });
   }
@@ -31,10 +34,15 @@ class RedisClient {
   /**
    * Retrieves the value of a given key.
    * @param {String} key The key of the item to retrieve.
-   * @returns {String | Object}
+   * @returns {Promise<String | null>}
    */
   async get(key) {
-    return promisify(this.client.GET).bind(this.client)(key);
+    try {
+      return await promisify(this.client.GET).bind(this.client)(key);
+    } catch (err) {
+      console.error(`Error fetching key ${key}:`, err.message);
+      return null;
+    }
   }
 
   /**
@@ -45,8 +53,11 @@ class RedisClient {
    * @returns {Promise<void>}
    */
   async set(key, value, duration) {
-    await promisify(this.client.SETEX)
-      .bind(this.client)(key, duration, value);
+    try {
+      await promisify(this.client.SETEX).bind(this.client)(key, duration, value);
+    } catch (err) {
+      console.error(`Error setting key ${key}:`, err.message);
+    }
   }
 
   /**
@@ -55,9 +66,14 @@ class RedisClient {
    * @returns {Promise<void>}
    */
   async del(key) {
-    await promisify(this.client.DEL).bind(this.client)(key);
+    try {
+      await promisify(this.client.DEL).bind(this.client)(key);
+    } catch (err) {
+      console.error(`Error deleting key ${key}:`, err.message);
+    }
   }
 }
 
 export const redisClient = new RedisClient();
 export default redisClient;
+
